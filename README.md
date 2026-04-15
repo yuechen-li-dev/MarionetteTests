@@ -2,6 +2,39 @@
 
 Marionette is a powerful yet ultra-lightweight test harness for C++. 
 
+## Building
+
+Marionette has no external dependencies. Compile all `.cpp` files in `Marionette/` together into a single binary with any C++20 compiler. The only required define is `MARIONETTE_TEST_REPO_ROOT`, which tells the harness where to write artifact output.
+
+**g++ / clang++**
+
+```sh
+g++ -std=c++20 -O2 \
+  -DMARIONETTE_TEST_REPO_ROOT="\"$(pwd)\"" \
+  Marionette/test_main.cpp \
+  Marionette/test_harness.cpp \
+  Marionette/test_doom.cpp \
+  Marionette/smoke_tests.cpp \
+  Marionette/test_harness_phase1_tests.cpp \
+  Marionette/test_harness_doom_tests.cpp \
+  -o marionette_tests
+```
+
+Run from the repository root so `$(pwd)` resolves correctly and artifacts land under `out/test-artifacts/`.
+
+When adding your own tests, append your `.cpp` files to the same compile command — no registration step required beyond the `FACT`/`THEORY`/`BENCHMARK` macros in source.
+
+**Run modes**
+
+```sh
+./marionette_tests                  # run all tests
+./marionette_tests <filter>         # run tests whose name contains <filter>
+./marionette_tests --bench          # run all benchmarks
+./marionette_tests --bench <filter> # run matching benchmarks
+```
+
+Artifacts from passing and failing tests are written to `out/test-artifacts/<TestName>/`.
+
 ## Core test declaration
 
 ### `FACT`
@@ -60,7 +93,7 @@ ASSERT_SEQUENCE_EQUAL(expectedVector, actualVector, "ordered sequence should mat
 Element equality uses `operator==` on each element pair at the same index.
 
 - custom structs in expected/actual sequences must define `operator==`
-- this is why many DragonGod runtime structs used in tests define equality directly
+- this is why many runtime structs used in tests for other projects define equality directly
 
 ### `ASSERT_NEAR`
 
